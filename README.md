@@ -39,7 +39,7 @@ var options = {
 	omniture: true
 };
 
-Tagger.track('LINK\_CADASTRO', options);
+Tagger.Track('LINK\_CADASTRO', options);
 </code></pre>
 
 
