@@ -19,7 +19,7 @@ var Tagger = {
 		}
 
 		if (typeof _gaq !== "undefined"){
-			_gaq.category = persistentInfo;
+			_gaq.category = persistentInfo.category;
 		}
 		if (!!videos){
 			Tagger.videos = videos;
