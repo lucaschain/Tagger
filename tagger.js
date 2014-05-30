@@ -5,6 +5,7 @@ var Tagger = {
 	storage : {},
 	gaq : false,
 	s : false,
+	parsed: false,
 	
 	/**
 	* Starta o tagger
@@ -22,10 +23,12 @@ var Tagger = {
 			_gaq.category = persistentInfo.category;
 		}
 		if (!!videos){
-			Tagger.videos = videos;
+			this.videos = videos;
 		}
-		Tagger.names = names;
-		Tagger.parseDomData();
+		this.names = names;
+
+		if ( !this.parsed )
+			this.parseDomData();
 	},
 	
 	/**
@@ -40,81 +43,90 @@ var Tagger = {
 		console.log("The method 'track' is deprecated, use 'Track' instead");
 		this.Track(name, options);
 	},
-	Track : function(name, options){
-
-		options = options || {};
+  
+  trackOmniture: function(name, options){
 		var pageName = '';
 		var pageAction = '';
+		var pageCategory = '';
 		var replacedPageName = '';
+    this.clearEventsAndVars();
+    if (!!options.vars){
+      $.each(options.vars,function(index, value){
+        s[index] = value;
+      });
+    }
+    if (!!options.events){
+      s.events = options.events;
+    }
+    if (!!this.names[name])
+      pageName = this.names[name].omniture;		
+    else
+      pageName = name;
+
+    if (!!options.params)
+      replacedPageName = this.replaceParams(pageName, options.params);
+    else 
+      replacedPageName = pageName;
+    
+    if (!options.customLink){
+      s.pageName = replacedPageName;	
+      s.t();
+    }else{
+      s.tl(this, 'o', replacedPageName);
+    }
+  },
+  trackMelt: function(name, options){
+    //TODO Implement Melt tracker  
+  },
+  trackGa: function(name, options){
+		var pageName = '';
+		var pageAction = '';
+		var pageCategory = '';
+		var replacedPageName = '';
+    if (!!options.pageView){
+
+      if (!!this.names[name])
+        pageName = this.names[name].ga;		
+      else
+        pageName = name;
+      if (!!options.params)
+        replacedPageName = this.replaceParams(pageName, options.params);
+      else
+        replacedPageName = pageName;
+
+      _gaq.push(['second._trackPageview', replacedPageName]);
+    }
+    else{
+      if (!!this.names[name]){
+        pageName = this.names[name].ga.marker;
+        pageAction = this.names[name].ga.action;
+
+        pageCategory = this.names[name].ga.category || _gaq.category;
+      }
+      else{
+        pageMarker = name;
+        pageAction = name;
+        pageCategory = _gaq.category;
+      }
+      
+      
+      if (!!options.params)
+        replacedPageName = this.replaceParams(pageName, options.params);
+      else 
+        replacedPageName = pageName;
+      
+      _gaq.push(['second._trackEvent', pageCategory, pageAction, replacedPageName]);
+    }	
+  },
+
+	Track : function(name, options){
+		options = options || {};
 		if (options.omniture)
-		{
-			Tagger.clearEventsAndVars();
-			if (!!options.vars){
-				$.each(options.vars,function(index, value){
-					s[index] = value;
-				});
-			}
-			if (!!options.events){
-				s.events = options.events;
-			}
-			if (!!Tagger.names[name])
-				pageName = Tagger.names[name].omniture;		
-			else
-				pageName = name;
-
-			if (!!options.params)
-				replacedPageName = Tagger.replaceParams(pageName, options.params);
-			else 
-				replacedPageName = pageName;
-			
-			if (!options.customLink){
-				s.pageName = replacedPageName;	
-				s.t();
-			}else{
-				s.tl(this, 'o', replacedPageName);
-			}
-
-
-			
-		}
-		
+      this.trackOmniture(name, options);
 		if (options.ga && !!_gaq)
-		{	
-
-			if (!!options.gaPageView){
-
-				if (!!Tagger.names[name])
-					pageName = Tagger.names[name].ga;		
-				else
-					pageName = name;
-				if (!!options.params)
-					replacedPageName = Tagger.replaceParams(pageName, options.params);
-
-				_gaq.push(['_trackPageview', replacedPageName]);
-
-			}
-			else{
-				if (!!Tagger.names[name]){
-					pageName = Tagger.names[name].ga.marker;
-					pageAction = Tagger.names[name].ga.action;
-					pageCategory = Tagger.names[name].ga.category;
-				}
-				else{
-					pageMarker = name;
-					pageAction = name;
-					pageCategory = _gaq.category;
-				}
-				
-				
-				if (!!options.params)
-					replacedPageName = Tagger.replaceParams(pageName, options.params);
-				else 
-					replacedPageName = pageName;
-				
-				_gaq.push(['_trackEvent', pageCategory, pageAction, replacedPageName]);
-			}	
-
-		}
+      this.trackGa(name, options);
+    if (options.melt)
+      this.trackMelt(name, options);
 	},
 	
 	/**
@@ -156,8 +168,8 @@ var Tagger = {
 	* @private
 	*/
 	parseDomData : function(){
+		var _that = this;
 		//Binda os clicks
-
 		$("body").on("click","*[data-tag='link']",function(){
 			var name = $(this).data('name');
 			var params = new Array();
@@ -175,12 +187,55 @@ var Tagger = {
 			if ($(this).data('ga')){
 				options.ga = true;
 			}
-			if ($(this).data('gapageview')){
-				options.gaPageView = true;
+			if ($(this).data('melt')){
+				options.melt = true;
+			}
+			if ($(this).data('pageview')){
+				options.pageView = true;
 			}
 
-			Tagger.Track(name, options);
+			_that.Track(name, options);
 		});
+    
+
+    //Tagueia scroll
+    var sections = $("*[data-tag='scroll'");
+		$(window).scroll(function(){
+      var scroll = $(window).scrollTop();
+      
+      sections.each(function(){
+        var offsetTop = $(this).position().top + 80;
+        var offsetBot = $(this).position().top + $(this).height();
+        if (!$(this).data('tagged') && scroll > offsetTop && scroll < offsetBot){
+          var name = $(this).data('name');
+          var params = new Array();
+          if ($(this).data('param'))
+            params.push($(this).data('param'));
+          var options = {
+            params : params
+          };
+          if ($(this).data('custom')){
+            options.customLink = true;
+          }
+          if ($(this).data('omniture')){
+            options.omniture = true;
+          }
+          if ($(this).data('ga')){
+            options.ga = true;
+          }
+          if ($(this).data('melt')){
+            options.melt = true;
+          }
+          if ($(this).data('pageview')){
+            options.pageView = true;
+          }
+          $(this).data('tagged', true);
+          sections.remove($(this));
+          _that.Track(name, options);
+        }
+      });
+		});
+
 		
 		//Tagueia o page load
 		var load = $("*[data-tag='load']")[0];
@@ -198,10 +253,14 @@ var Tagger = {
 			if ($(load).data('ga')){
 				options.ga = true;
 			}
-			if ($(load).data('gapageview')){
-				options.gaPageView = true;
+			if ($(load).data('pageview')){
+				options.pageView = true;
 			}
-			Tagger.Track(name, options);
+			this.Track(name, options);
 		}
+
+		this.parsed = true;
+
 	}
+
 };
