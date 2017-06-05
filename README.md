@@ -31,7 +31,7 @@ var names = {
 </code>
 </pre>
 
-##Track via JS
+## Track via JS
 <pre>
 <code>
 var options = {
@@ -43,7 +43,7 @@ Tagger.Track('LINK\_CADASTRO', options);
 </code></pre>
 
 
-##Track link/page load via html:
+## Track link/page load via html:
 Page load:
 <pre><code>
 \<body data-tag="load" data-omniture="true" data-ga="true" data-gapageview="true" data-name="HOME"\>
@@ -52,7 +52,7 @@ Page load:
 </pre></code>
 
 
-##Options
+## Options
 <ul>
 <li> ga - Boolean (false) : especifica se vai taguear via GA </li>
 <li> omniture - Boolean (false) : especifica se vai taguear via Omniture </li>
