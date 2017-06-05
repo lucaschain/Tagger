@@ -32,32 +32,29 @@ var names = {
 </pre>
 
 ## Track via JS
-<pre>
-<code>
+````
 var options = {
 	ga: true,
 	omniture: true
 };
 
-Tagger.Track('LINK\_CADASTRO', options);
-</code></pre>
+Tagger.Track('LINK_CADASTRO', options);
+````
 
 
 ## Track link/page load via html:
 Page load:
-<pre><code>
-\<body data-tag="load" data-omniture="true" data-ga="true" data-gapageview="true" data-name="HOME"\>
+````
+<body data-tag="load" data-omniture="true" data-ga="true" data-gapageview="true" data-name="HOME">
 
-\<a data-tag="link" data-omniture="true" data-ga="true" data-name="LINK\_CADASTRO"\>
-</pre></code>
+<a data-tag="link" data-omniture="true" data-ga="true" data-name="LINK_CADASTRO">
+````
 
 
 ## Options
-<ul>
-<li> ga - Boolean (false) : especifica se vai taguear via GA </li>
-<li> omniture - Boolean (false) : especifica se vai taguear via Omniture </li>
-<li> gaPageView - Boolean (false) : especifica se a tag de GA é page_view </li>
-<li> events - String : Quais eventos (separado por vírgula) o track vai disparar</li>
-<li> vars - AssociativeArray : Variáveis e valores que o track vai disparar, <br />ex:  { evar74 : 'lalala', evar50 : 123 }</li>
-<li> params - Array : Parâmetros para substituir o pagename, ex: <br /> para 'sadia:compartilhe:@1:@2' use ['valor\_parametro1', 'valor\_parametro2'] </li>
-</ul>
+- ga - Boolean (false) : especifica se vai taguear via GA
+- omniture - Boolean (false) : especifica se vai taguear via Omniture
+- gaPageView - Boolean (false) : especifica se a tag de GA é page_view
+- events - String : Quais eventos (separado por vírgula) o track vai disparar
+- vars - AssociativeArray : Variáveis e valores que o track vai disparar, <br />ex:  { evar74 : 'lalala', evar50 : 123 }
+- params - Array : Parâmetros para substituir o pagename, ex: <br /> para 'sadia:compartilhe:@1:@2' use ['valor_parametro1', 'valor_parametro2']
