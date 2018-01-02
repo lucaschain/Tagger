@@ -1,4 +1,4 @@
-Tagger
+Tagger (Obsoleto, não usar)
 ======
 
 Implementação:
